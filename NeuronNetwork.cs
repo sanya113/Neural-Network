@@ -19,16 +19,30 @@ namespace Neural {
             this.inputCount = inputCount;
         }
 
+        public void OptimizeSystem() {
+            GC.Collect(1, GCCollectionMode.Optimized);
+            GC.WaitForPendingFinalizers();
+        }
+
         public void AddLayer(int neuronsCount) {
             // Get weights of previous layer;
             int lastLayer = layers.Count - 1;
-            int prevWeights = lastLayer == -1 ? inputCount : layers[lastLayer].Lenght;
+
+            int prevWeights = 0;
+            if (lastLayer == -1) {
+                prevWeights = inputCount;
+            } else {
+                prevWeights = layers[lastLayer].Lenght;
+                layers[lastLayer].isOutput = false;
+            }
 
             AddLayerWithWeights(neuronsCount, prevWeights);
         }
 
         public void AddLayerWithWeights (int neuronsCount, int weights) {
             NeuronLayer layer = new NeuronLayer(neuronsCount, weights, activate, deriv);
+
+            layer.isOutput = true;
 
             layers.Add(layer);
         }

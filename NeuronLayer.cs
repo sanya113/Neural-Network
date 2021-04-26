@@ -7,8 +7,9 @@ namespace Neural {
             get => neurons[index];
         }
         // return length with displacement neuron
-        public int Lenght { get => neurons.Length; }
-        private Neuron[] neurons;
+        public int Lenght { get => neurons.Length + 1; }
+        public bool isOutput = false;
+        protected Neuron[] neurons;
 
         /// <summary>
         /// Neuron layer with array of neurons
@@ -29,13 +30,15 @@ namespace Neural {
         /// <returns>output of feeded neurons</returns>
         public float[] Feed (float[] input) {
             // array with result of neurons output
-            float[] result = new float[neurons.Length + 1];
+            int count = isOutput ? neurons.Length : neurons.Length + 1;
+            float[] result = new float[count];
 
             for (int i = 0; i < neurons.Length; i++) {
                 result[i] = neurons[i].Feed(input);
             }
-
-            result[neurons.Length] = 1;
+            
+            if (!isOutput)
+                result[neurons.Length] = 1;
 
             return result;
         }
@@ -75,15 +78,12 @@ namespace Neural {
         }
 
         public float[] TrainNeurons (float[] input, float learnRate) {
-            float[] toReturn = new float[neurons.Length];
 
             for (int i = 0; i < neurons.Length; i++) {
                 neurons[i].Train(input, learnRate);
-
-                toReturn[i] = neurons[i].Feed(input);
             }
 
-            return toReturn;
+            return Feed(input);
         }
     }
 }

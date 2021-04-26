@@ -125,8 +125,8 @@ namespace Neural
         }
         static float Loss (float[][] y_true, float[][] y_res) {
             float result = 0;
-            for (int i = 0; i < y_true.Length; i++) {
-                for (int x = 0; x < y_true[i].Length; x++) {
+            for (int i = 0; i < y_res.Length; i++) {
+                for (int x = 0; x < y_res[i].Length; x++) {
                     result += Square(y_true[i][x] - y_res[i][x]);
                 }
             }
@@ -143,12 +143,16 @@ namespace Neural
             NeuronNetwork network = new NeuronNetwork(inputData[0].Length, funcs.activate, funcs.deriv);
 
             network.AddLayer(6);
+
             network.AddLayer(2);
 
+            network.OptimizeSystem();
+
             Console.Clear();
+
             float loss = 1;
             int loop = 0;
-            while (loss > 0.0001f) {
+            while (loop < 100000) {
                 float[][] result = new float[inputData.Length][];
                 for (int y = 0; y < inputData.Length; y++) {
                     result[y] = network.TrainNeurons(inputData[y], rightResult[y]);
@@ -167,7 +171,6 @@ namespace Neural
                 float[] need = inputData[i];
                 
                 string writeData = String.Format("Пример - {0}; Ожидаемый результать - {1}; Результат - {2:f2};", ArrayToString(need), ArrayToString( rightResult[i] ), OutputArrayString(network.Feed(need)));
-                //Console.WriteLine( "Exampel - " + needStr + " Waiting " + rightResult[i] + " Result - " + neural.FeedForward(need)[0]);
                 Console.WriteLine(writeData);
                 
             }
