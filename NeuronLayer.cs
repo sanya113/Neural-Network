@@ -1,6 +1,6 @@
 using System;
 
-namespace Neural {
+namespace Neural.Core {
     public class NeuronLayer {
         public Neuron this[int index]
         {
@@ -36,7 +36,7 @@ namespace Neural {
             for (int i = 0; i < neurons.Length; i++) {
                 result[i] = neurons[i].Feed(input);
             }
-            
+
             if (!isOutput)
                 result[neurons.Length] = 1;
 

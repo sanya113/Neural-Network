@@ -1,5 +1,5 @@
 using System;
-namespace Neural {
+namespace Neural.Core {
     public class Neuron {
         private static Random rnd = new Random();
 

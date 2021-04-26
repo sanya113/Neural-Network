@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Neural.Core;
 
 namespace Neural {
     public class NeuronNetwork {
