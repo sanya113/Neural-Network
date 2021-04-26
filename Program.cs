@@ -152,7 +152,7 @@ namespace Neural
 
             float loss = 1;
             int loop = 0;
-            while (loop < 100000) {
+            while (loss > 0.001f) {
                 float[][] result = new float[inputData.Length][];
                 for (int y = 0; y < inputData.Length; y++) {
                     result[y] = network.TrainNeurons(inputData[y], rightResult[y]);
@@ -166,7 +166,7 @@ namespace Neural
 
                 loop += 1;
             }
-            Console.WriteLine(loss);
+
             for (int i = 0; i < inputData.Length; i++){
                 float[] need = inputData[i];
                 
