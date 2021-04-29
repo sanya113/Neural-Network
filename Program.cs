@@ -135,12 +135,15 @@ namespace Neural
 
         static void Main(string[] args)
         {
+            int inputCount = 100000;
             ArrayToArrays(nrInputData, out inputData);
             ArrayToArrays(nrRightResult, out rightResult);
 
             IActivate funcs = new Sigmoid();
 
             NeuronNetwork network = new NeuronNetwork(inputData[0].Length, funcs.activate, funcs.deriv);
+            
+            network.AddLayer(9);
 
             network.AddLayer(6);
 

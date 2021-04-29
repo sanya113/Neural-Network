@@ -6,9 +6,11 @@ namespace Neural.Core {
         {
             get => neurons[index];
         }
+        public NeuronLayer next;
+        public NeuronLayer prev;
         // return length with displacement neuron
         public int Lenght { get => neurons.Length + 1; }
-        public bool isOutput = false;
+        public bool isOutput { get => next == null; }
         protected Neuron[] neurons;
 
         /// <summary>

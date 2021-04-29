@@ -6,6 +6,9 @@ namespace Neural {
     public class NeuronNetwork {
         public List<NeuronLayer> layers;
 
+        private NeuronLayer head;
+        private NeuronLayer output;
+
         private Func<float,float> activate;
         private Func<float,float> deriv;
 
@@ -21,20 +24,17 @@ namespace Neural {
         }
 
         public void OptimizeSystem() {
-            GC.Collect(1, GCCollectionMode.Optimized);
+            GC.Collect(0, GCCollectionMode.Optimized);
             GC.WaitForPendingFinalizers();
         }
 
         public void AddLayer(int neuronsCount) {
             // Get weights of previous layer;
-            int lastLayer = layers.Count - 1;
-
             int prevWeights = 0;
-            if (lastLayer == -1) {
+            if (output == null) {
                 prevWeights = inputCount;
             } else {
-                prevWeights = layers[lastLayer].Lenght;
-                layers[lastLayer].isOutput = false;
+                prevWeights = output.Lenght;
             }
 
             AddLayerWithWeights(neuronsCount, prevWeights);
@@ -43,16 +43,22 @@ namespace Neural {
         public void AddLayerWithWeights (int neuronsCount, int weights) {
             NeuronLayer layer = new NeuronLayer(neuronsCount, weights, activate, deriv);
 
-            layer.isOutput = true;
+            if (output != null) {
+                output.next = layer;
+                layer.prev = output;
+            }
 
-            layers.Add(layer);
+            if (head == null) head = layer;
+            output = layer;
         }
 
         public float[] Feed (float[] input) {
             float[] data = input;
             
-            for (int i = 0; i < layers.Count; i++) {
-                data = layers[i].Feed(data);
+            NeuronLayer layer = head; 
+            while (layer != null) {
+                data = layer.Feed(data);
+                layer = layer.next;
             }
 
             return data;
@@ -63,20 +69,23 @@ namespace Neural {
             float[] result = Feed(input);
 
             // Calculate loss for output neuron
-            NeuronLayer lastLayer = layers[layers.Count - 1];
+            NeuronLayer lastLayer = output;
             float[] loss = lastLayer.CalculateOutputError(result, waitResult);
 
-            // Calculate loss for every neuron
-            for (int y = layers.Count - 2; y >= 0; y--) {
-                loss = layers[y].CalculateError(loss, lastLayer);
+            NeuronLayer layer = output.prev;
+            while (layer != null) {
+                loss = layer.CalculateError(loss, lastLayer);
 
-                lastLayer = layers[y];
+                lastLayer = layer;
+                layer = layer.prev;
             }
 
-            float[] data = input; 
-            // Train neurons
-            for (int y = 0; y < layers.Count; y++) {
-                data = layers[y].TrainNeurons(data, 0.4f);
+            float[] data = input;
+            
+            layer = head;
+            while (layer != null) {
+                data = layer.TrainNeurons(data, 0.4f);
+                layer = layer.next;
             }
 
             return Feed(input);
