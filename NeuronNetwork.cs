@@ -14,6 +14,12 @@ namespace Neural {
 
         private int inputCount;
 
+        /// <summary>
+        /// Neuron network with learn system
+        /// </summary>
+        /// <param name="inputCount">Count of input neurons</param>
+        /// <param name="activateFunc">Activation function for neurons</param>
+        /// <param name="derivFunc">Derivative function for neuron based on activate function </param>
         public NeuronNetwork (int inputCount, Func<float,float> activateFunc, Func<float,float> derivFunc) {
             activate = activateFunc;
             deriv = derivFunc;
@@ -23,11 +29,10 @@ namespace Neural {
             this.inputCount = inputCount;
         }
 
-        public void OptimizeSystem() {
-            GC.Collect(0, GCCollectionMode.Optimized);
-            GC.WaitForPendingFinalizers();
-        }
-
+        /// <summary>
+        /// Create and add to list new layer with constant count of neurons
+        /// </summary>
+        /// <param name="neuronsCount">constant count of neurons in new layer</param>
         public void AddLayer(int neuronsCount) {
             // Get weights of previous layer;
             int prevWeights = 0;
@@ -40,6 +45,12 @@ namespace Neural {
             AddLayerWithWeights(neuronsCount, prevWeights);
         }
 
+        /// <summary>
+        /// Add specfig layer with self calculated wights
+        /// WARNING!: Do do it, if you dont understand what are you doing
+        /// </summary>
+        /// <param name="neuronsCount">Count of input neurons</param>
+        /// <param name="weights">Count of wights for all neurons</param>
         public void AddLayerWithWeights (int neuronsCount, int weights) {
             NeuronLayer layer = new NeuronLayer(neuronsCount, weights, activate, deriv);
 
@@ -52,6 +63,11 @@ namespace Neural {
             output = layer;
         }
 
+        /// <summary>
+        /// Feed all neuron layers and return result of output layers
+        /// </summary>
+        /// <param name="input">Input data for input neurons</param>
+        /// <returns>result of output neurons</returns>
         public float[] Feed (float[] input) {
             float[] data = input;
             
@@ -64,6 +80,12 @@ namespace Neural {
             return data;
         }
 
+        /// <summary>
+        /// Function for training neurons.
+        /// </summary>
+        /// <param name="input">Input data for input neurons</param>
+        /// <param name="waitResult">Right result of output neurons (in last layer)</param>
+        /// <returns>result of output neurons</returns>
         public float[] TrainNeurons(float[] input, float[] waitResult) {
 
             float[] result = Feed(input);
@@ -72,6 +94,7 @@ namespace Neural {
             NeuronLayer lastLayer = output;
             float[] loss = lastLayer.CalculateOutputError(result, waitResult);
 
+            // Calculate loss for hidden layer and input layer neurons
             NeuronLayer layer = output.prev;
             while (layer != null) {
                 loss = layer.CalculateError(loss, lastLayer);
@@ -80,6 +103,7 @@ namespace Neural {
                 layer = layer.prev;
             }
 
+            // Train neurons
             float[] data = input;
             
             layer = head;
