@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using DefaultActivateFuncs;
 
 namespace Neural
@@ -135,7 +136,6 @@ namespace Neural
 
         static void Main(string[] args)
         {
-            int inputCount = 100000;
             ArrayToArrays(nrInputData, out inputData);
             ArrayToArrays(nrRightResult, out rightResult);
 
@@ -144,14 +144,12 @@ namespace Neural
             NeuronNetwork network = new NeuronNetwork(inputData[0].Length, funcs.activate, funcs.deriv);
             
             network.AddLayer(9);
-
             network.AddLayer(6);
-
             network.AddLayer(2);
 
-            network.OptimizeSystem();
-
             Console.Clear();
+
+            var watch = Stopwatch.StartNew();
 
             float loss = 1;
             int loop = 0;
@@ -161,7 +159,7 @@ namespace Neural
                     result[y] = network.TrainNeurons(inputData[y], rightResult[y]);
                 }
 
-                if (loop % 100 == 0) {
+                if (loop % 500 == 0) {
                     loss = Loss(result, rightResult);
                     Console.SetCursorPosition(0,1);
                     Console.WriteLine(String.Format("Loop {0} loss {1:f8}", loop, loss));
@@ -170,13 +168,18 @@ namespace Neural
                 loop += 1;
             }
 
+            watch.Stop();
+
+            var learnTime = watch.ElapsedMilliseconds;
+
             for (int i = 0; i < inputData.Length; i++){
                 float[] need = inputData[i];
                 
                 string writeData = String.Format("Пример - {0}; Ожидаемый результать - {1}; Результат - {2:f2};", ArrayToString(need), ArrayToString( rightResult[i] ), OutputArrayString(network.Feed(need)));
                 Console.WriteLine(writeData);
-                
             }
+
+            Console.WriteLine(String.Format("Время обучения: {0} ms", learnTime));
         }
         static string OutputArrayString(float[] need) {
             
